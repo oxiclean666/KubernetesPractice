@@ -1,0 +1,5 @@
+*.lock*
+*.tfstate*
+*.box*
+*.tfstate
+terraform

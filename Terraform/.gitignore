@@ -2,4 +2,5 @@
 *.tfstate*
 *.box*
 *.tfstate
-.terraform/
+.terraform\
+.terraform\*

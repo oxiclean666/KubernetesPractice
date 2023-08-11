@@ -8,6 +8,7 @@ The kubernetes nodes (worker/master) should be deployed automatically.
 Requires: 
     - Terraform 
     - Chocolatey 
+    - Vagrant
 
 Environment Setup: 
 

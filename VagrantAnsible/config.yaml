@@ -1,0 +1,22 @@
+---
+VagrantConfig:
+  VmBox: "hashicorp/bionic64"
+  ApiVersion: "2"
+  SyncedFolder: "/vagrant"
+VmConfig:
+  WorkerNode:
+    Memory: 1024
+    Cpus: 1
+    LinkedClone: true   
+    HostConfig: 
+      - Name: Kube1
+        Ip:  "192.168.56.11"
+      - Name: Kube2 
+        Ip:  "192.168.56.12"  
+  MasterNode: 
+    Memory: 2048
+    Cpus: 1
+    LinkedClone: true 
+    HostConfig:
+      Kube3: 
+        Ip: "192.168.56.13"

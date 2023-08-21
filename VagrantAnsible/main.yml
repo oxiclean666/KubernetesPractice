@@ -23,6 +23,6 @@
 
   roles:
     #- geerlingguy.docker
-    - geerlingguy.kubernetes
+    #- geerlingguy.kubernetes
 
   tasks: []

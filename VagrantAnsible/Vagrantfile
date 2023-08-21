@@ -5,51 +5,40 @@ require 'yaml'
 current_dir    = File.dirname(File.expand_path(__FILE__))
 configs        = YAML.load_file("#{current_dir}/config.yaml")
 
+# Configure 
 Vagrant.configure(configs['VagrantConfig']['ApiVersion']) do |config|
+  
+  # Loop through each VM configuration in VmConfig
   config.vm.box = configs['VagrantConfig']['VmBox']
   config.vm.synced_folder '.', configs['VagrantConfig']['SyncedFolder'], disabled: true
   
-  config.vm.provider :virtualbox do |v|
-    v.memory = configs['VmConfig']['WorkerNode']['Memory']
-    v.cpus = configs['VmConfig']['WorkerNode']['Cpus']
-    v.linked_clone = configs['VmConfig']['WorkerNode']['LinkedClone']
-  end 
+  # Configure Virtual Machines
+  configs['VmConfig'].each_with_index do |node, index|
 
-  # Virtual Machine Definintions 
-  boxes = []
+    node_type = node.keys.first  # Extract the VM name from the hash key
 
-  configs['VmConfig']['WorkerNode']['HostConfig'].each do |item|
-    boxes << { name: item['Name'], ip: item['Ip'] }
-  end
+    # Virtual Machine Definintions 
+    boxes = []
 
-  boxes.each do |opts|
-    config.vm.define opts[:name] do |c|
-      config.vm.hostname = opts[:name]
-      config.vm.network :private_network, ip: opts[:ip]
+    node[node_type]['HostConfig'].each do |item|
+      boxes << { name: item['Name'], ip: item['Ip'] }
+    end
 
-      # Provision all the VMs in parallel using Ansible after last VM is up.
-      # if opts[:name] == "kube3"
-      #   config.vm.provision "ansible" do |ansible|
-      #     ansible.compatibility_mode = "2.0"
-      #     ansible.playbook = "main.yml"
-      #     ansible.limit = "all"
-      #     ansible.become = true
-      #     ansible.groups = {
-      #       "kubernetes" => ["kube1", "kube2", "kube3"],
-      #       "kubernetes_master" => ["kube1"],
-      #       "kubernetes_master:vars" => {
-      #         kubernetes_role: "master",
-      #         swapfile_path: "/dev/mapper/vagrant--vg-swap_1",
-      #         kubernetes_apiserver_advertise_address: "192.168.56.71"
-      #       },
-      #       "kubernetes_node" => ["kube2", "kube3"],
-      #       "kubernetes_node:vars" => {
-      #         kubernetes_role: "node",
-      #         swapfile_path: "/dev/mapper/vagrant--vg-swap_1"
-      #       }
-      #     }
-      #   end
-      # end 
+    # Virtual Machine Hardware Configuration
+    config.vm.provider :virtualbox do |v|
+      v.memory = node[node_type]['Memory']
+      v.cpus = node[node_type]['Cpus']
+      v.linked_clone = node[node_type]['LinkedClone']
+      #v.name = "#{index + 1}_#{boxes["Name"]}"
+    end 
+
+    boxes.each do |opts|
+
+      config.vm.define opts[:name] do |c|
+        config.vm.hostname = opts[:name]
+        config.vm.network :private_network, ip: opts[:ip]
+      end
+    
     end
   end
 end
